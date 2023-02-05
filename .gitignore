@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### UX From React ###
+src/main/resources/static/

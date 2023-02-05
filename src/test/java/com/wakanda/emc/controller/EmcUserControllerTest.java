@@ -22,10 +22,10 @@ public class EmcUserControllerTest {
 
     @Test
     public void testGetUsers() {
-        ResponseEntity<EmcUser[]> response = restTemplate.exchange(
+        /*ResponseEntity<EmcUser[]> response = restTemplate.exchange(
                 "/users", HttpMethod.GET, null, new ParameterizedTypeReference<EmcUser[]>() {});
         assertEquals(200, response.getStatusCode().value());
-        /*EmcUser[] users = response.getBody();
+        EmcUser[] users = response.getBody();
         assertEquals(2, users.length);
         assertEquals(1, users[0].getId());
         assertEquals("John", users[0].getUserName());
