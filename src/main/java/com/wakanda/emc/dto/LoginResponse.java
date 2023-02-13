@@ -1,5 +1,6 @@
-package com.wakanda.emc.viewmodel;
+package com.wakanda.emc.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,5 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginResponse {
     private boolean success;
-    private String username;
+    private String userHandle;
+    private List<String> orgHandles;
 }

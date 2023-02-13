@@ -1,4 +1,4 @@
-package com.wakanda.emc.viewmodel;
+package com.wakanda.emc.dto;
 
 import lombok.Data;
 

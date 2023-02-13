@@ -9,5 +9,5 @@ import com.wakanda.emc.model.EmcOrganization;
 
 public interface EmcOrganizationRepository extends MongoRepository<EmcOrganization, ObjectId> {
 
-        List<EmcOrganization> findByName(String name);
+        EmcOrganization findByOrgHandle(String orgHandle);
 }

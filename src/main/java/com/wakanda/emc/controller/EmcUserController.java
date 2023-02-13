@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wakanda.emc.database.EmcUserRepository;
+import com.wakanda.emc.dto.LoginRequest;
+import com.wakanda.emc.dto.LoginResponse;
+import com.wakanda.emc.dto.RegisterRequest;
 import com.wakanda.emc.model.EmcUser;
-import com.wakanda.emc.viewmodel.LoginRequest;
-import com.wakanda.emc.viewmodel.LoginResponse;
-import com.wakanda.emc.viewmodel.RegisterRequest;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class EmcUserController {
 
 	EmcUserRepository userRepo;
@@ -28,47 +28,42 @@ public class EmcUserController {
 
 	@PostMapping("/register")
 	public ResponseEntity<LoginResponse> registerUser(@RequestBody RegisterRequest registerRequest) {
-        if (addNewUser(registerRequest)) {
-            return ResponseEntity.ok(new LoginResponse(true, registerRequest.getUserHandle()));
+		EmcUser user = addNewUser(registerRequest);
+        if (user != null) {
+            return ResponseEntity.ok(new LoginResponse(true, registerRequest.getUserHandle(), user.getOrgHandles()));
         } else {
-            return ResponseEntity.ok(new LoginResponse(false, null));
+            return ResponseEntity.ok(new LoginResponse(false, null, null));
         }
 	}
 
 	@PostMapping("/login")
     public ResponseEntity<LoginResponse> handleLogin(@RequestBody LoginRequest loginRequest) {
         // authentication logic here
-        if (validCredentials(loginRequest.getUserHandle(), loginRequest.getPassword())) {
-            return ResponseEntity.ok(new LoginResponse(true, loginRequest.getUserHandle()));
+		EmcUser user = validCredentials(loginRequest.getUserHandle(), loginRequest.getPassword());
+        if (user != null) {
+            return ResponseEntity.ok(new LoginResponse(true, loginRequest.getUserHandle(), user.getOrgHandles()));
         } else {
-            return ResponseEntity.ok(new LoginResponse(false, null));
+            return ResponseEntity.ok(new LoginResponse(false, null, null));
         }
     }
 
-	@GetMapping("/users")
-	public Page<EmcUser> getUsers(int pageSize, int pageNumber) {
-		return userRepo.findAll(PageRequest.of(pageNumber, pageSize));
-
-	}
-
-	private boolean validCredentials(String username, String password) {
-        // check the username and password against the database or any other authentication source
-        // return true if the credentials are valid, false otherwise
-		EmcUser user = userRepo.findByUserHandle(username);
+	private EmcUser validCredentials(String userHandle, String password) {
+        userHandle = userHandle.toLowerCase();
+		EmcUser user = userRepo.findByUserHandle(userHandle);
 		if (user == null) {
-			return false;
+			return null;
 		}
 		if (!user.getPassword().equals(password)) {
-			return false;
+			return null;
 		}
-        return true;
+        return user;
     }
 
-
-	private boolean addNewUser(RegisterRequest registerRequest) {
-		EmcUser oldUser = userRepo.findByUserHandle(registerRequest.getUserHandle());
+	private EmcUser addNewUser(RegisterRequest registerRequest) {
+		String userHandle = registerRequest.getUserHandle().toLowerCase();
+		EmcUser oldUser = userRepo.findByUserHandle(userHandle);
 		if (oldUser != null) {
-			return false;
+			return null;
 		}
 
 		EmcUser newUser = new EmcUser();
@@ -80,6 +75,6 @@ public class EmcUserController {
 		newUser.setEmail(registerRequest.getEmail());
 		newUser.setPhone(registerRequest.getPhone());
 		userRepo.save(newUser);
-		return true;
+		return newUser;
 	}
 }

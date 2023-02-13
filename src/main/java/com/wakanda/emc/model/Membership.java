@@ -1,23 +1,23 @@
 package com.wakanda.emc.model;
 
-public class OrganizationMember {
+public class Membership {
     private long id;
     private long organizationId;
     private long userId;
     private EmcMemberStatus status;
     private EmcRole role;
 
-    public OrganizationMember(long organizationId, long userId) {
+    public Membership(long organizationId, long userId) {
         this(userId, organizationId, -1);
     }
 
-    public OrganizationMember(long id, long organizationId, long userId) {
+    public Membership(long id, long organizationId, long userId) {
         this.id = id;
         this.organizationId = organizationId;
         this.userId = userId;
     }
 
-    public OrganizationMember() {
+    public Membership() {
         super();
     }
 

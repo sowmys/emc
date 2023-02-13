@@ -1,5 +1,7 @@
 package com.wakanda.emc.model;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -18,6 +20,7 @@ public class EmcUser {
 	private String address;
 	private String email;
 	private String phone;
+	private List<String> orgHandles;
 	@Id
 	private ObjectId id;
 
