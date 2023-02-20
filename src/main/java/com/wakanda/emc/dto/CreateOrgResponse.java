@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CreateOrgResponse {
-    private boolean success;
+    private String errorMessage;
     private String orgHandle;
 }

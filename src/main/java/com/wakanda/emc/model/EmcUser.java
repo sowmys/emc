@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-@Document(collection = "users")
+@Document(collection = "emc-users")
 @Data
 public class EmcUser {
 	@Indexed(unique = true)

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-@Document(collection = "organizations")
+@Document(collection = "emc-organizations")
 @Data
 public class EmcOrganization {
     @Indexed(unique = true)
@@ -17,7 +17,9 @@ public class EmcOrganization {
     private String orgName;
     private String creator;
     private String description;
-    private List<String> appliedUsers;
+    private List<String> appliedVolunteers;
+    private List<String> approvedVolunteers;
+    private List<String> administrators;
     
     @Id
     private ObjectId id;
