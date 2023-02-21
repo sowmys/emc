@@ -1,0 +1,28 @@
+package com.wakanda.emc.model;
+
+import java.util.List;
+import java.util.ArrayList;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
+
+import lombok.Data;
+
+@Document(collection = "emc-events")
+@Data
+public class EmcEvent {
+    @Indexed(name = "uniqueEventField", unique = true)
+    private String name;
+    @Indexed(name = "uniqueEventField", unique = true)
+    private String orgHandle;
+    private String description;
+    private String location;
+    private String date;
+    private String time;
+    private String creator;
+    private List<String> tasks = new ArrayList<>();
+    
+    @Id
+    private ObjectId id;
+}

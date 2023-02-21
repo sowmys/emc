@@ -1,5 +1,7 @@
 package com.wakanda.emc.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -8,6 +10,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
+import lombok.Builder;
 
 @Document(collection = "emc-organizations")
 @Data
@@ -17,9 +20,9 @@ public class EmcOrganization {
     private String orgName;
     private String creator;
     private String description;
-    private List<String> appliedVolunteers;
-    private List<String> approvedVolunteers;
-    private List<String> administrators;
+    private List<String> appliedVolunteers = new ArrayList<>();
+    private List<String> approvedVolunteers = new ArrayList<>();
+    private List<String> administrators = new ArrayList<>();
     
     @Id
     private ObjectId id;

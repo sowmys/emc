@@ -16,7 +16,7 @@ import com.wakanda.emc.database.EmcUserRepository;
 import com.wakanda.emc.model.EmcOrganization;
 import com.wakanda.emc.model.EmcUser;
 import com.wakanda.emc.dto.CreateOrgRequest;
-import com.wakanda.emc.dto.CreateOrgResponse;
+import com.wakanda.emc.dto.ApproveApplicantRequest;
 
 @RestController
 @RequestMapping("/api/organizations")
@@ -45,6 +45,8 @@ public class EmcOrganizationController {
             org.setCreator(createOrgRequest.getCreator());
             org.setDescription(createOrgRequest.getDescription());
             org.setAppliedVolunteers(List.of());
+            org.setApprovedVolunteers(List.of());
+            org.setAdministrators(List.of());
             orgRepo.save(org);
             return new ResponseEntity<>(org.getOrgHandle(), HttpStatus.OK);
         }
@@ -55,6 +57,13 @@ public class EmcOrganizationController {
     @GetMapping("/getall")
     public EmcOrganization[] getOrganizations() {
         List<EmcOrganization> orgList = orgRepo.findAll();
+        EmcOrganization[] result = orgList.toArray(new EmcOrganization[0]);
+        return result;
+    }
+
+    @GetMapping("/getOrganizationsForAdmin")
+    public EmcOrganization[] getOrganizationsForAdmin(@RequestParam("admin") String adminHandle) {
+        List<EmcOrganization> orgList = orgRepo.findByCreatorOrAdministrators(adminHandle, adminHandle);
         EmcOrganization[] result = orgList.toArray(new EmcOrganization[0]);
         return result;
     }
@@ -88,39 +97,36 @@ public class EmcOrganizationController {
     }
 
     @PostMapping("/approveApplicant")
-    public ResponseEntity<String> approveApplicant(@RequestParam("approver") String approverHandle,
-                                                   @RequestParam("organization") String orgHandle,
-                                                   @RequestParam("applicant") String applicantHandle) {
-        EmcUser applicant = userRepo.findByUserHandle(applicantHandle);
-        EmcOrganization organization = orgRepo.findByOrgHandle(orgHandle);
-        if (applicant == null || organization == null) {
-            return new ResponseEntity<>("Creator, applicant, or organization not found", HttpStatus.NOT_FOUND);
-        }
-        if (!organization.getCreator().equals(approverHandle) && !organization.getAdministrators().contains(approverHandle)) {
-            return new ResponseEntity<>("User is not the creator or an administraror of the organization", HttpStatus.UNAUTHORIZED);
-        }
-        if (!organization.getAppliedVolunteers().contains(applicantHandle)) {
-            return new ResponseEntity<>("Applicant is not pending approval", HttpStatus.BAD_REQUEST);
-        }
-        organization.getAppliedVolunteers().remove(applicantHandle);
-        organization.getApprovedVolunteers().add(applicantHandle);
-        orgRepo.save(organization);
-        applicant.getOrgHandles().add(orgHandle);
-        userRepo.save(applicant);
-        return new ResponseEntity<>("Applicant approved", HttpStatus.OK);
-    }
+    public ResponseEntity<String> approveApplicant(@RequestBody ApproveApplicantRequest approveApplicantRequest) {
+        String approverHandle = approveApplicantRequest.getApproverHandle();
 
-    private EmcOrganization createOrg(CreateOrgRequest createOrgRequest) {
-        if (orgRepo.findByOrgHandle(createOrgRequest.getOrgHandle()) != null) {
-            return null;
+        for (int i=0;i<approveApplicantRequest.getOrgs().length; i++) {
+            ApproveApplicantRequest.OrgInfo orgRequest = approveApplicantRequest.getOrgs()[i];
+            EmcOrganization organization = orgRepo.findByOrgHandle(orgRequest.getOrgHandle());
+            if (organization == null) {
+                return new ResponseEntity<>("Organization not found", HttpStatus.NOT_FOUND);
+            }
+            if (!organization.getCreator().equals(approverHandle) && !organization.getAdministrators().contains(approverHandle)) {
+                return new ResponseEntity<>("User is not the creator or an administraror of the organization", HttpStatus.UNAUTHORIZED);
+            }
+            for (int j=0;j<orgRequest.getApprovedUsers().length; j++) {
+                String applicantHandle = orgRequest.getApprovedUsers()[i];
+                EmcUser applicant = userRepo.findByUserHandle(applicantHandle);
+
+                if (applicant == null) {
+                    return new ResponseEntity<>("Applicant not found", HttpStatus.NOT_FOUND);
+                }
+                if (!organization.getAppliedVolunteers().contains(applicantHandle)) {
+                    return new ResponseEntity<>("Applicant is not pending approval", HttpStatus.BAD_REQUEST);
+                }
+                organization.getAppliedVolunteers().remove(applicantHandle);
+                organization.getApprovedVolunteers().add(applicantHandle);
+                applicant.getOrgHandles().add(orgRequest.getOrgHandle());
+                userRepo.save(applicant);
+                orgRepo.save(organization);
+            }
         }
-        EmcOrganization org = new EmcOrganization();
-        org.setOrgHandle(createOrgRequest.getOrgHandle());
-        org.setOrgName(createOrgRequest.getOrgName());
-        org.setCreator(createOrgRequest.getCreator());
-        org.setDescription(createOrgRequest.getDescription());
-        org.setAppliedVolunteers(List.of());
-        orgRepo.save(org);
-        return org;
+        
+        return new ResponseEntity<>("Applicant approved", HttpStatus.OK);
     }
 }
