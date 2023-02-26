@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -18,8 +19,7 @@ public class EmcEvent {
     private String orgHandle;
     private String description;
     private String location;
-    private String date;
-    private String time;
+    private Date dateTime;
     private String creator;
     private List<String> tasks = new ArrayList<>();
     

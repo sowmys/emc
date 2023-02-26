@@ -61,9 +61,11 @@ public class EmcOrganizationController {
         return result;
     }
 
-    @GetMapping("/getOrganizationsForAdmin")
-    public EmcOrganization[] getOrganizationsForAdmin(@RequestParam("admin") String adminHandle) {
-        List<EmcOrganization> orgList = orgRepo.findByCreatorOrAdministrators(adminHandle, adminHandle);
+    @GetMapping("/getOrganizationsForUser")
+    public EmcOrganization[] getOrganizationsForAdmin(@RequestParam("user") String userHandle,
+                                                      @RequestParam("isAdmin") boolean isAdmin) {
+        List<EmcOrganization> orgList = isAdmin ? orgRepo.findByCreatorOrAdministrators(userHandle, userHandle)
+                                                : orgRepo.findByApprovedVolunteers(userHandle);
         EmcOrganization[] result = orgList.toArray(new EmcOrganization[0]);
         return result;
     }
@@ -100,33 +102,30 @@ public class EmcOrganizationController {
     public ResponseEntity<String> approveApplicant(@RequestBody ApproveApplicantRequest approveApplicantRequest) {
         String approverHandle = approveApplicantRequest.getApproverHandle();
 
-        for (int i=0;i<approveApplicantRequest.getOrgs().length; i++) {
-            ApproveApplicantRequest.OrgInfo orgRequest = approveApplicantRequest.getOrgs()[i];
-            EmcOrganization organization = orgRepo.findByOrgHandle(orgRequest.getOrgHandle());
-            if (organization == null) {
-                return new ResponseEntity<>("Organization not found", HttpStatus.NOT_FOUND);
-            }
-            if (!organization.getCreator().equals(approverHandle) && !organization.getAdministrators().contains(approverHandle)) {
-                return new ResponseEntity<>("User is not the creator or an administraror of the organization", HttpStatus.UNAUTHORIZED);
-            }
-            for (int j=0;j<orgRequest.getApprovedUsers().length; j++) {
-                String applicantHandle = orgRequest.getApprovedUsers()[i];
-                EmcUser applicant = userRepo.findByUserHandle(applicantHandle);
-
-                if (applicant == null) {
-                    return new ResponseEntity<>("Applicant not found", HttpStatus.NOT_FOUND);
-                }
-                if (!organization.getAppliedVolunteers().contains(applicantHandle)) {
-                    return new ResponseEntity<>("Applicant is not pending approval", HttpStatus.BAD_REQUEST);
-                }
-                organization.getAppliedVolunteers().remove(applicantHandle);
-                organization.getApprovedVolunteers().add(applicantHandle);
-                applicant.getOrgHandles().add(orgRequest.getOrgHandle());
-                userRepo.save(applicant);
-                orgRepo.save(organization);
-            }
+        EmcOrganization organization = orgRepo.findByOrgHandle(approveApplicantRequest.getOrgHandle());
+        if (organization == null) {
+            return new ResponseEntity<>("Organization not found", HttpStatus.NOT_FOUND);
         }
-        
+        if (!organization.getCreator().equals(approverHandle) && !organization.getAdministrators().contains(approverHandle)) {
+            return new ResponseEntity<>("User is not the creator or an administraror of the organization", HttpStatus.UNAUTHORIZED);
+        }
+        for (int j=0;j<approveApplicantRequest.getApprovedUsers().length; j++) {
+            String applicantHandle = approveApplicantRequest.getApprovedUsers()[j];
+            EmcUser applicant = userRepo.findByUserHandle(applicantHandle);
+
+            if (applicant == null) {
+                return new ResponseEntity<>("Applicant not found", HttpStatus.NOT_FOUND);
+            }
+            if (!organization.getAppliedVolunteers().contains(applicantHandle)) {
+                return new ResponseEntity<>("Applicant is not pending approval", HttpStatus.BAD_REQUEST);
+            }
+            organization.getAppliedVolunteers().remove(applicantHandle);
+            organization.getApprovedVolunteers().add(applicantHandle);
+            applicant.getOrgHandles().add(approveApplicantRequest.getOrgHandle());
+            userRepo.save(applicant);
+            orgRepo.save(organization);
+        }
+    
         return new ResponseEntity<>("Applicant approved", HttpStatus.OK);
     }
 }

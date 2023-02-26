@@ -10,5 +10,6 @@ public interface EmcOrganizationRepository extends MongoRepository<EmcOrganizati
 
         EmcOrganization findByOrgHandle(String orgHandle);
         List<EmcOrganization> findByCreatorOrAdministrators(String creator, String admin);
+        List<EmcOrganization> findByApprovedVolunteers(String creator);
 
 }

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
 
 import com.wakanda.emc.database.EmcEventRepository;
-import com.wakanda.emc.database.EmcTaskRepository;
 import com.wakanda.emc.dto.CreateEventRequest;
 import com.wakanda.emc.model.EmcEvent;
 
@@ -18,11 +17,9 @@ import com.wakanda.emc.model.EmcEvent;
 @RequestMapping("/api/events")
 public class EmcEventController {
 	private EmcEventRepository eventRepo;
-    private EmcTaskRepository taskRepo;
 
-    public EmcEventController(EmcEventRepository eventRepo, EmcTaskRepository taskRepo) {
+    public EmcEventController(EmcEventRepository eventRepo) {
         this.eventRepo = eventRepo;
-        this.taskRepo = taskRepo;
     }
 
     @PostMapping("/create")
@@ -43,8 +40,7 @@ public class EmcEventController {
         newEvent.setName(event.getName());
         newEvent.setDescription(event.getDescription());
         newEvent.setCreator(event.getCreator());
-        newEvent.setDate(event.getDate());
-        newEvent.setTime(event.getTime());
+        newEvent.setDateTime(event.getDateTime());
         newEvent.setLocation(event.getLocation());
         newEvent.setTasks(List.of());
         eventRepo.save(newEvent);
