@@ -62,7 +62,7 @@ public class EmcOrganizationController {
     }
 
     @GetMapping("/getOrganizationsForUser")
-    public EmcOrganization[] getOrganizationsForAdmin(@RequestParam("user") String userHandle,
+    public EmcOrganization[] getOrganizationsForUser(@RequestParam("user") String userHandle,
                                                       @RequestParam("isAdmin") boolean isAdmin) {
         List<EmcOrganization> orgList = isAdmin ? orgRepo.findByCreatorOrAdministrators(userHandle, userHandle)
                                                 : orgRepo.findByApprovedVolunteers(userHandle);

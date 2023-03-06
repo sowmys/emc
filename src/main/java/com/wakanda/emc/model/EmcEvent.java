@@ -21,6 +21,9 @@ public class EmcEvent {
     private String location;
     private Date dateTime;
     private String creator;
+    private int openVolunteerSpots;
+    private List<String> appliedVolunteers = new ArrayList<>();
+    private List<String> approvedVolunteers = new ArrayList<>();
     private List<String> tasks = new ArrayList<>();
     
     @Id

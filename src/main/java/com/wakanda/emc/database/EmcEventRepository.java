@@ -10,5 +10,7 @@ public interface EmcEventRepository extends MongoRepository<EmcEvent, ObjectId> 
 
         EmcEvent findByOrgHandleAndName(String orgHandle, String name);
         List<EmcEvent> findByOrgHandle(String orgHandle);
+        List<EmcEvent> findByOrgHandleAndApprovedVolunteers(String orgHandle, String approvedVolunteer);
+        List<EmcEvent> findByOrgHandleAndCreator(String orgHandle, String creator);
 
 }
